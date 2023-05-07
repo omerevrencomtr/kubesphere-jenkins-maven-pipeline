@@ -12,12 +12,12 @@ pipeline {
 
         DOCKER_REGISTRY = 'docker-registry.miateknoloji.io'
         DOCKER_CREDENTIAL_ID = 'nexus-admin'
+        DOCKER_CONFIG_JSON = 'nexus-docker-config-json'
 
         SONAR_CREDENTIAL_ID = 'sonar-token'
         KUBECONFIG_CREDENTIAL_ID = 'kubeconfig'
-
-
     }
+
     stages {
 
         stage('checkout') {

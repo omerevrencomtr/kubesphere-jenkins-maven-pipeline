@@ -6,7 +6,7 @@ metadata:
 type: kubernetes.io/dockerconfigjson
 data:
   .dockerconfigjson: >-
-    eyJhdXRocyI6eyJkb2NrZXItcmVnaXN0cnkubWlhdGVrbm9sb2ppLmlvIjp7InVzZXJuYW1lIjoiZGV2b3BzIiwicGFzc3dvcmQiOiJKcWh4cS13eXk0NCIsImVtYWlsIjoiZGV2b3BzQG1pYXRla25vbG9qaS5pbyIsImF1dGgiOiJaR1YyYjNCek9rcHhhSGh4TFhkNWVUUTAifX19
+    $DOCKER_CONFIG_JSON
 
 ---
 apiVersion: apps/v1
