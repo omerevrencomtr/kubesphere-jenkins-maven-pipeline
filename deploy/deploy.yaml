@@ -29,7 +29,7 @@ spec:
               value: js|html
             - name: CACHE_PUBLIC_EXPIRATION
               value: 3d
-          image: $DOCKER_REGISTRY/$DOCKER_NAMESPACE/$BRANCH_NAME:$BUILD_NUMBER
+          image: $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER
           readinessProbe:
             httpGet:
               path: /
@@ -69,32 +69,30 @@ spec:
       port: 8080
       protocol: TCP
       targetPort: 8080
-      nodePort: 30861
   selector:
     app: kubesphere
     component: ks-sample-dev
     tier: backend
   sessionAffinity: None
-  type: NodePort
+  type: ClusterIP
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ks-console-ingress
-  namespace: kubesphere-system
-  uid: c7bc45ff-9ce6-40c9-b184-2ed3d1135308
-  resourceVersion: '307025'
-  generation: 4
-  creationTimestamp: '2023-05-06T20:06:18Z'
+  labels:
+    app: kubesphere
+    component: ks-sample-dev
+  name: ks-sample-dev
+  namespace: kubesphere-sample-dev
 spec:
   rules:
-    - host: kubesphere.miateknoloji.io
+    - host: ks-sample-dev.miateknoloji.io
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: ks-console
+                name: ks-sample-dev
                 port:
-                  number: 80
+                  number: 8080
