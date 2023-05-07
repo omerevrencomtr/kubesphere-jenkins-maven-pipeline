@@ -78,10 +78,10 @@ pipeline {
                             kubeconfigFile(
                                     credentialsId: env.KUBECONFIG_CREDENTIAL_ID,
                                     variable: 'KUBECONFIG'),
-                            string(credentialsId: env.DOCKER_CONFIG_JSON, variable: 'DOCKER_CONFIG_JSON2')
+                            string(credentialsId: env.DOCKER_CONFIG_JSON, variable: 'DOCKER_CONFIG_JSON_SECRET')
                     ]) {
                         sh '''
-                        echo "Access Token2: $DOCKER_CONFIG_JSON2"
+                        echo "Docker Secret: $DOCKER_CONFIG_JSON_SECRET"
                         echo "Access Token: $DOCKER_CONFIG_JSON"
                         '''
                         sh 'envsubst < deploy/deploy.yaml | kubectl apply -f -'

@@ -6,7 +6,7 @@ metadata:
 type: kubernetes.io/dockerconfigjson
 data:
   .dockerconfigjson: >-
-    $DOCKER_REGISTRY
+    $DOCKER_CONFIG_JSON_SECRET
 
 ---
 apiVersion: apps/v1
