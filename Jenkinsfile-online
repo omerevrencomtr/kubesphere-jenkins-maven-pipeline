@@ -14,7 +14,7 @@ pipeline {
         TEST_KUBECONFIG_CREDENTIAL_ID = 'kubeconfig'
         DEV_KUBECONFIG_CREDENTIAL_ID = 'kubeconfig'
 
-        REGISTRY = 'https://docker-registry.miateknoloji.io'
+        REGISTRY = 'docker-registry.miateknoloji.io'
         DOCKERHUB_NAMESPACE = 'omerevrencomtr'
         APP_NAME = 'devops-maven-sample'
         SONAR_CREDENTIAL_ID = 'sonar-token'
