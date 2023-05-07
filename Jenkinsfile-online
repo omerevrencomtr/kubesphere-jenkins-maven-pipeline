@@ -21,6 +21,8 @@ pipeline {
         TAG_NAME = "SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER"
         IMAGE_NAME = 'omerevrencomtr/lamots'
         BUILD_ARGS = "-f Dockerfile-online . --network host"
+        DOCKER_REGISTRY = 'https://docker-registry.miateknoloji.io'
+        REGISTRY_CREDENTIAL = 'nexus-admin'
     }
     stages {
 
@@ -36,7 +38,7 @@ pipeline {
                 script {
                     container('maven') {
 
-                        docker.withRegistry(REGISTRY, DOCKER_CREDENTIAL_ID) {
+                        docker.withRegistry(DOCKER_REGISTRY, REGISTRY_CREDENTIAL) {
                             dockerImage = docker.build(IMAGE_NAME, BUILD_ARGS)
                         }
                         sh 'mvn -Dmaven.test.skip=true clean package'
