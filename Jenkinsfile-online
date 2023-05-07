@@ -25,10 +25,7 @@ pipeline {
             steps {
                 script {
                     container('maven') {
-                        sh '/usr/bin/docker --version'
-                        docker.withRegistry(DOCKER_REGISTRY, REGISTRY_CREDENTIAL) {
-                            dockerImage = docker.build(IMAGE_NAME, BUILD_ARGS)
-                        }
+                        sh 'podman build -f Dockerfile-online -t $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER .'
 
                     }
                 }
