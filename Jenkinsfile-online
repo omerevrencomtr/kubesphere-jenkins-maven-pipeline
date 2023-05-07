@@ -5,9 +5,6 @@ pipeline {
         }
 
     }
-    parameters {
-        string(name:'BRANCH_NAME',defaultValue: 'main',description:'')
-    }
     environment {
         DOCKER_CREDENTIAL_ID = 'nexus-admin'
         PROD_KUBECONFIG_CREDENTIAL_ID = 'kubeconfig'
@@ -18,17 +15,23 @@ pipeline {
         DOCKERHUB_NAMESPACE = 'omerevrencomtr'
         APP_NAME = 'devops-maven-sample'
         SONAR_CREDENTIAL_ID = 'sonar-token'
-        TAG_NAME = "SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER"
         IMAGE_NAME = 'omerevrencomtr/lamots'
         BUILD_ARGS = "-f Dockerfile-online . --network host"
         DOCKER_REGISTRY = 'https://docker-registry.miateknoloji.io'
         REGISTRY_CREDENTIAL = 'nexus-admin'
     }
     stages {
+        stage('Initialize')
+                {
+                    def dockerHome = tool 'MyDocker'
+                    def mavenHome  = tool 'MyMaven'
+                    env.PATH = "${dockerHome}/bin:${mavenHome}/bin:${env.PATH}"
+                }
         stage('build & push') {
             steps {
                 script {
                     container('maven') {
+                        sh '/usr/bin/docker --version'
                         docker.withRegistry(DOCKER_REGISTRY, REGISTRY_CREDENTIAL) {
                             dockerImage = docker.build(IMAGE_NAME, BUILD_ARGS)
                         }
