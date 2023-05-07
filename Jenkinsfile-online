@@ -28,13 +28,7 @@ pipeline {
                 }
             }
         }
-        stage('checkout') {
-            steps {
-                container('maven') {
-                    sh 'git checkout'
-                }
-            }
-        }
+
         stage('unit test') {
             steps {
                 container('maven') {
