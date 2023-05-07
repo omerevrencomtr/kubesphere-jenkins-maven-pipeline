@@ -9,12 +9,12 @@ pipeline {
         string(name:'BRANCH_NAME',defaultValue: 'main',description:'')
     }
     environment {
-        DOCKER_CREDENTIAL_ID = 'dockerhub-omerevrencomtr'
+        DOCKER_CREDENTIAL_ID = 'nexus-admin'
         PROD_KUBECONFIG_CREDENTIAL_ID = 'kubeconfig'
         TEST_KUBECONFIG_CREDENTIAL_ID = 'kubeconfig'
         DEV_KUBECONFIG_CREDENTIAL_ID = 'kubeconfig'
 
-        REGISTRY = 'docker.io'
+        REGISTRY = 'https://docker-registry.miateknoloji.io'
         DOCKERHUB_NAMESPACE = 'omerevrencomtr'
         APP_NAME = 'devops-maven-sample'
         SONAR_CREDENTIAL_ID = 'sonar-token'
