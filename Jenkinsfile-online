@@ -77,7 +77,8 @@ pipeline {
                     withCredentials([
                             kubeconfigFile(
                                     credentialsId: env.KUBECONFIG_CREDENTIAL_ID,
-                                    variable: 'KUBECONFIG')
+                                    variable: 'KUBECONFIG'),
+                            string(credentialsId: env.DOCKER_CONFIG_JSON, variable: 'DOCKER_CONFIG_JSON')
                     ]) {
                         sh 'envsubst < deploy/deploy.yaml | kubectl apply -f -'
                     }
