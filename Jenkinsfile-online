@@ -52,6 +52,7 @@ pipeline {
         }
         stage('build & push') {
             steps {
+                script {
                 container('base') {
                     sh 'mvn -Dmaven.test.skip=true clean package'
                     docker.withRegistry(REGISTRY, DOCKER_CREDENTIAL_ID) {
@@ -62,6 +63,7 @@ pipeline {
                         sh 'echo "$DOCKER_PASSWORD" | docker login $REGISTRY -u "$DOCKER_USERNAME" --password-stdin'
                         sh 'docker push  $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER'
                     }
+                }
                 }
             }
         }
