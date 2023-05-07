@@ -52,7 +52,7 @@ pipeline {
         }
         stage('build & push') {
             steps {
-                container('maven') {
+                container('base') {
                     docker.withRegistry(REGISTRY, DOCKER_CREDENTIAL_ID) {
                         dockerImage = docker.build(IMAGE_NAME, BUILD_ARGS)
                     }
