@@ -21,14 +21,13 @@ pipeline {
         TAG_NAME = "SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER"
     }
     stages {
-        stage('checkout'){
-            steps{
-                script{
-                    checkout
+        stage('checkout') {
+            steps {
+                container('maven') {
+                    sh 'git checkout'
                 }
             }
         }
-
         stage('unit test') {
             steps {
                 container('maven') {
