@@ -1,3 +1,13 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: docker-registry-miateknoloji-io
+  namespace: kubesphere-sample-dev
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: >-
+    eyJhdXRocyI6eyJkb2NrZXItcmVnaXN0cnkubWlhdGVrbm9sb2ppLmlvIjp7InVzZXJuYW1lIjoiZGV2b3BzIiwicGFzc3dvcmQiOiJKcWh4cS13eXk0NCIsImVtYWlsIjoiZGV2b3BzQG1pYXRla25vbG9qaS5pbyIsImF1dGgiOiJaR1YyYjNCek9rcHhhSGh4TFhkNWVUUTAifX19
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -23,6 +33,8 @@ spec:
         component: ks-sample-dev
         tier: backend
     spec:
+      imagePullSecrets:
+        - name: docker-registry-miateknoloji-io
       containers:
         - env:
             - name: CACHE_IGNORE
