@@ -25,7 +25,7 @@ pipeline {
             steps {
                 script {
                     container('maven') {
-                        sh 'podman build -f Dockerfile-online -t $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER .'
+                        sh 'podman build -f Dockerfile-online -t $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:SNAPSHOT-$BUILD_NUMBER .'
 
                     }
                 }
