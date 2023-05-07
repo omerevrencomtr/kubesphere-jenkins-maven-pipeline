@@ -3,26 +3,22 @@ pipeline {
         node {
             label 'maven'
         }
+    }
 
-    }
-    parameters {
-        string(name:'BRANCH_NAME',defaultValue: 'main',description:'')
-    }
     environment {
-        DOCKER_CREDENTIAL_ID = 'nexus-admin'
-        PROD_KUBECONFIG_CREDENTIAL_ID = 'kubeconfig'
-        TEST_KUBECONFIG_CREDENTIAL_ID = 'kubeconfig'
-        DEV_KUBECONFIG_CREDENTIAL_ID = 'kubeconfig'
-
-        REGISTRY = 'docker-registry.miateknoloji.io'
-        DOCKERHUB_NAMESPACE = 'omerevrencomtr'
         APP_NAME = 'devops-maven-sample'
+        BRANCH_NAME = 'dev'
+
+        DOCKER_NAMESPACE = 'lamots'
+        TAG_NAME = "$BRANCH_NAME-$BUILD_NUMBER"
+
+        DOCKER_REGISTRY = 'docker-registry.miateknoloji.io'
+        DOCKER_CREDENTIAL_ID = 'nexus-admin'
+
         SONAR_CREDENTIAL_ID = 'sonar-token'
-        TAG_NAME = "SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER"
-        IMAGE_NAME = 'omerevrencomtr/lamots'
-        BUILD_ARGS = "-f Dockerfile-online . --network host"
-        DOCKER_REGISTRY = 'https://docker-registry.miateknoloji.io'
-        REGISTRY_CREDENTIAL = 'nexus-admin'
+        KUBECONFIG_CREDENTIAL_ID = 'kubeconfig'
+
+
     }
     stages {
 
@@ -33,6 +29,7 @@ pipeline {
                 }
             }
         }
+
         stage('unit test') {
             steps {
                 container('maven') {
@@ -40,6 +37,7 @@ pipeline {
                 }
             }
         }
+
         stage('sonarqube analysis') {
             steps {
                 container('maven') {
@@ -47,10 +45,8 @@ pipeline {
                         withSonarQubeEnv('sonar') {
                             sh "mvn sonar:sonar -Dsonar.login=$SONAR_TOKEN"
                         }
-
                     }
                 }
-
             }
         }
 
@@ -59,10 +55,10 @@ pipeline {
                 script {
                     container('maven') {
                         sh 'mvn -Dmaven.test.skip=true clean package'
-                        sh 'podman build -f Dockerfile-online -t $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER .'
-                        withCredentials([usernamePassword(passwordVariable : 'DOCKER_PASSWORD' ,usernameVariable : 'DOCKER_USERNAME' ,credentialsId : "$DOCKER_CREDENTIAL_ID" ,)]) {
-                            sh 'echo "$DOCKER_PASSWORD" | podman login $REGISTRY -u "$DOCKER_USERNAME" --password-stdin'
-                            sh 'podman push  $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER'
+                        sh 'podman build -f Dockerfile-online -t $DOCKER_REGISTRY/$DOCKER_NAMESPACE/$APP_NAME-$BRANCH_NAME:$BUILD_NUMBER .'
+                        withCredentials([usernamePassword(passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME', credentialsId: "$DOCKER_CREDENTIAL_ID",)]) {
+                            sh 'echo "$DOCKER_PASSWORD" | podman login $DOCKER_REGISTRY -u "$DOCKER_USERNAME" --password-stdin'
+                            sh 'podman push $DOCKER_REGISTRY/$DOCKER_NAMESPACE/$APP_NAME-$BRANCH_NAME:$BUILD_NUMBER'
                         }
                     }
                 }
@@ -72,8 +68,8 @@ pipeline {
         stage('push latest') {
             steps {
                 container('maven') {
-                    sh 'podman tag  $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:latest '
-                    sh 'podman push  $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:latest '
+                    sh 'podman tag  $DOCKER_REGISTRY/$DOCKER_NAMESPACE/$APP_NAME-$BRANCH_NAME:$BUILD_NUMBER $DOCKER_REGISTRY/$DOCKER_NAMESPACE/$APP_NAME-$BRANCH_NAME:latest '
+                    sh 'podman push  $DOCKER_REGISTRY/$DOCKER_NAMESPACE/$APP_NAME-$BRANCH_NAME:latest '
                 }
             }
         }
@@ -82,38 +78,10 @@ pipeline {
                 container('maven') {
                     withCredentials([
                             kubeconfigFile(
-                                    credentialsId: env.DEV_KUBECONFIG_CREDENTIAL_ID,
+                                    credentialsId: env.KUBECONFIG_CREDENTIAL_ID,
                                     variable: 'KUBECONFIG')
                     ]) {
                         sh 'envsubst < deploy/dev-all-in-one/devops-sample.yaml | kubectl apply -f -'
-                    }
-                }
-            }
-        }
-        stage('deploy to staging') {
-            steps {
-                container('maven') {
-                    input(id: 'deploy-to-staging', message: 'deploy to staging?')
-                    withCredentials([
-                            kubeconfigFile(
-                                    credentialsId: env.TEST_KUBECONFIG_CREDENTIAL_ID,
-                                    variable: 'KUBECONFIG')
-                    ]) {
-                        sh 'envsubst < deploy/prod-all-in-one/devops-sample.yaml | kubectl apply -f -'
-                    }
-                }
-            }
-        }
-        stage('deploy to production') {
-            steps {
-                container('maven') {
-                    input(id: 'deploy-to-production', message: 'deploy to production?')
-                    withCredentials([
-                            kubeconfigFile(
-                                    credentialsId: env.PROD_KUBECONFIG_CREDENTIAL_ID,
-                                    variable: 'KUBECONFIG')
-                    ]) {
-                        sh 'envsubst < deploy/prod-all-in-one/devops-sample.yaml | kubectl apply -f -'
                     }
                 }
             }
