@@ -25,19 +25,10 @@ pipeline {
         REGISTRY_CREDENTIAL = 'nexus-admin'
     }
     stages {
-
-        stage('checkout') {
-            steps {
-                container('maven') {
-                    sh 'git checkout'
-                }
-            }
-        }
         stage('build & push') {
             steps {
                 script {
                     container('maven') {
-
                         docker.withRegistry(DOCKER_REGISTRY, REGISTRY_CREDENTIAL) {
                             dockerImage = docker.build(IMAGE_NAME, BUILD_ARGS)
                         }
@@ -46,68 +37,7 @@ pipeline {
                 }
             }
         }
-        stage('unit test') {
-            steps {
-                container('maven') {
-                    sh 'mvn clean test'
-                }
-            }
-        }
-        stage('sonarqube analysis') {
-            steps {
-                container('maven') {
-                    withCredentials([string(credentialsId: "$SONAR_CREDENTIAL_ID", variable: 'SONAR_TOKEN')]) {
-                        withSonarQubeEnv('sonar') {
-                            sh "mvn sonar:sonar -Dsonar.login=$SONAR_TOKEN"
-                        }
-
-                    }
-                }
-
-            }
-        }
 
 
-        stage('deploy to dev') {
-            steps {
-                container('maven') {
-                    withCredentials([
-                            kubeconfigFile(
-                                    credentialsId: env.DEV_KUBECONFIG_CREDENTIAL_ID,
-                                    variable: 'KUBECONFIG')
-                    ]) {
-                        sh 'envsubst < deploy/dev-all-in-one/devops-sample.yaml | kubectl apply -f -'
-                    }
-                }
-            }
-        }
-        stage('deploy to staging') {
-            steps {
-                container('maven') {
-                    input(id: 'deploy-to-staging', message: 'deploy to staging?')
-                    withCredentials([
-                            kubeconfigFile(
-                                    credentialsId: env.TEST_KUBECONFIG_CREDENTIAL_ID,
-                                    variable: 'KUBECONFIG')
-                    ]) {
-                        sh 'envsubst < deploy/prod-all-in-one/devops-sample.yaml | kubectl apply -f -'
-                    }
-                }
-            }
-        }
-        stage('deploy to production') {
-            steps {
-                container('maven') {
-                    input(id: 'deploy-to-production', message: 'deploy to production?')
-                    withCredentials([
-                            kubeconfigFile(
-                                    credentialsId: env.PROD_KUBECONFIG_CREDENTIAL_ID,
-                                    variable: 'KUBECONFIG')
-                    ]) {
-                        sh 'envsubst < deploy/prod-all-in-one/devops-sample.yaml | kubectl apply -f -'
-                    }
-                }
-            }
-        }
     }
 }
